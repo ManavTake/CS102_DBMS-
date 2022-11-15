@@ -1,0 +1,106 @@
+create database 1BM21CS102_insurance;
+use 1BM21CS102_insurance;
+
+create table PERSON
+(
+ driver_id varchar(20),
+ name varchar(30),
+ address varchar(40),
+ Primary key(driver_id)
+);
+
+create table CAR
+(
+ reg_num varchar(10),
+ model varchar(10),
+ year int,
+ primary key(reg_num)
+);
+
+
+create table OWNS
+(
+ driver_id varchar(20),
+ reg_num varchar(10),
+ primary key(driver_id,reg_num),
+ foreign key(driver_id) references PERSON(driver_id),
+ foreign key(reg_num) references CAR(reg_num)
+ );
+ 
+create table ACCIDENT
+(
+ report_num varchar(10),
+ accident_date int,
+ location varchar(30),
+ primary key(report_num)
+);
+
+create table PARTICIPATED
+(
+ driver_id varchar(20),
+ reg_num varchar(10),
+ report_num varchar(10),
+ damage_amount int,
+ primary key(driver_id,reg_num,report_num),
+ foreign key(driver_id) references PERSON(driver_id),
+ foreign key(reg_num) references CAR(reg_num),
+ foreign key(report_num) references ACCIDENT(report_num)
+ );
+
+desc PERSON;
+desc CAR;
+desc ACCIDENT;
+desc OWNS;
+desc PARTICIPATED;
+
+insert into PERSON values('ma123', 'manav', 'basavanagudi');
+insert into PERSON values('ad111', 'adnan', 'yeshwantpur'), ('raj789', 'rajesh', 'majestic');
+insert into PERSON values('nsh345', 'nishant', 'mg road'), ('fz567', 'faraz', 'kengeri');
+
+insert into CAR values('KA052205', 'Indica', 1990), ('KA039932', 'Lancer', 2014), ('KA251890', 'Toyota', 2005), ('KA635678', 'Skoda', 1999), ('KA456789', 'Ferarri', 2020);
+
+insert into ACCIDENT values(11, 2000 , 'Mysore road'), (12, 2001, 'South end circle'), (13, 2002,'Bull temple rd'), (14, 2003 , 'Mysore road'), (15, 2004 , 'Ashok nagar') ;
+
+insert into OWNS values( 'ma123' ,'KA052205');
+insert into OWNS values( 'ad111' , 'KA039932' );
+insert into OWNS values( 'raj789' , 'KA251890' ), ( 'nsh345' , 'KA635678' ), ( 'fz567' , 'KA456789' ); 
+
+insert into PARTICIPATED values( 'ma123' ,'KA052205',11, 10000), ( 'ad111' , 'KA039932' ,12,50000), ( 'raj789' , 'KA251890',13,25000 ), ( 'nsh345' , 'KA635678' , 14,3000), ( 'fz567' , 'KA456789' ,15, 5000);
+
+select * from PERSON;
+select * from CAR;
+select * from OWNS;
+select * from ACCIDENT;
+select * from PARTICIPATED;
+
+select * from CAR order by year asc;
+
+select count(report_num)
+from PARTICIPATED p, CAR c
+where c.reg_num=p.reg_num and c.model='Skoda';
+
+select count(report_num)
+from PARTICIPATED p, CAR c
+where c.reg_num=p.reg_num and c.model='toyota';
+
+select count(distinct driver_id) COUNT
+from PARTICIPATED p, ACCIDENT a
+where p.report_num=a.report_num and a.accident_date like '__03';
+
+select *
+from PARTICIPATED
+order by damage_amount desc;
+
+select avg(damage_amount) AVRG_AMT
+from PARTICIPATED;
+
+delete 
+from PARTICIPATED
+where damage_amount <(select t.amt from(select avg (damage_amount) as amt from PARTICIPATED) t);
+
+select name
+from PARTICIPATED p, PERSON a
+where p.driver_id=a.driver_id and damage_amount > (select t.amt from(select avg (damage_amount) as amt from PARTICIPATED) t);
+
+select max(damage_amount) MAX_amt
+from PARTICIPATED;
